@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Case File: The Lost Traveller</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --sky:#0f1b3d;--sky-2:#18285a;--card:#1c2f66;--line:#34508f;
+  --text:#f4efe2;--muted:#b9c3e0;--gold:#f2c14e;--ok:#7fd6b4;--no:#f2a08f;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark}}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --sky:#f6ecd4;--sky-2:#efe0bb;--card:#fffaf0;--line:#d8c391;
+    --text:#1d2548;--muted:#55608a;--gold:#9a6210;--ok:#1f7a5c;--no:#a8442c;
+  }
+}
+:root[data-theme="dark"]{color-scheme:dark}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;min-height:100%;background:var(--sky);color:var(--text);font-family:"Nunito","Segoe UI",system-ui,-apple-system,sans-serif;font-size:17px;line-height:1.7}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--sky);z-index:10}
+.wrap{max-width:660px;margin:0 auto;padding:28px 20px 80px}
+.ar{font-family:"Amiri","Scheherazade New","Traditional Arabic",serif;direction:rtl;line-height:1.9}
+h1{font-size:2.1rem;line-height:1.25;margin:0 0 6px;font-weight:800}
+h2{font-size:1.35rem;margin:52px 0 6px;font-weight:800}
+h2 .stepno{display:block;font-size:.9rem;font-weight:600;color:var(--gold);margin-bottom:2px}
+h3{margin:0 0 6px;font-size:1.05rem}
+p{margin:0 0 14px}
+.lead{color:var(--muted)}
+.src{font-size:.85rem;color:var(--muted)}
+.tag{display:inline-block;border:1.5px solid var(--gold);color:var(--gold);border-radius:999px;padding:2px 12px;font-size:.85rem;font-weight:600;margin-bottom:14px}
+.story{background:var(--sky-2);border:1px solid var(--line);border-radius:14px;padding:18px 18px 6px;margin-top:18px}
+.route{margin:22px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px 10px;font-size:.88rem;color:var(--muted)}
+.route li{border:1px solid var(--line);border-radius:999px;padding:1px 10px}
+
+.sky{margin:22px 0 6px}
+.sky svg{width:100%;height:auto;display:block;direction:ltr}
+.star{fill:var(--line);transition:fill .4s}
+.star.on{fill:var(--gold)}
+.link{stroke:var(--gold);stroke-width:1.6;stroke-dasharray:4 4;opacity:0;transition:opacity .5s}
+.link.on{opacity:.8}
+.sky-label{font-size:.9rem;color:var(--muted);text-align:center;margin:0}
+
+.clue{border:1px solid var(--line);background:var(--card);border-radius:14px;margin-bottom:12px;overflow:hidden}
+.clue button.open{all:unset;box-sizing:border-box;width:100%;cursor:pointer;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px;font-weight:800}
+button:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.clue .body{display:none;padding:0 18px 16px}
+.clue.shown .body{display:block}
+.clue.shown button.open{color:var(--gold)}
+.clue .pill{font-weight:600;font-size:.85rem;color:var(--muted);white-space:nowrap}
+.quote{border-inline-start:4px solid var(--gold);padding:2px 0;padding-inline-start:14px;margin:10px 0}
+.quote .ar{font-size:1.55rem;text-align:right;display:block}
+.quote em{color:var(--muted);font-style:normal;display:block}
+.scenario-q{font-weight:600;margin:0 0 10px}
+.answer{border-top:1px dashed var(--line);padding-top:10px;margin-top:6px}
+
+.opts{display:grid;gap:10px;margin-top:10px}
+.opt{all:unset;box-sizing:border-box;cursor:pointer;border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:12px 16px;font-weight:600}
+.opt:hover{border-color:var(--gold)}
+.opt .ar{font-size:1.35rem;display:block;text-align:left;direction:rtl;unicode-bidi:plaintext}
+.opt small{color:var(--muted);font-weight:400;display:block}
+.opt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,var(--card))}
+.opt.wrong{border-color:var(--no);opacity:.75}
+.feedback{min-height:1.6em;margin-top:10px;font-weight:600}
+
+.reveal{display:none;margin-top:30px;text-align:center;background:var(--sky-2);border:1px solid var(--gold);border-radius:18px;padding:30px 20px}
+.reveal.shown{display:block}
+.reveal .big{font-size:4.2rem;line-height:1.3;color:var(--gold);margin:0}
+.reveal .tr{font-size:1.4rem;font-weight:800;margin:0}
+.reveal .mean{color:var(--muted);margin:4px 0 0}
+.after{display:none}
+.after.shown{display:block}
+
+/* learner participation box */
+.turn{margin:20px 0;background:var(--sky-2);border:1.5px solid var(--gold);border-radius:14px;padding:14px 16px 16px}
+.turn-h{font-weight:800;color:var(--gold);margin:0 0 4px}
+.turn-q{font-weight:700;margin:0 0 4px}
+.turn-say{font-size:.9rem;color:var(--muted);margin:0 0 10px}
+.turn textarea{width:100%;min-height:84px;resize:vertical;font:inherit;font-size:1rem;color:var(--text);background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px}
+.turn textarea::placeholder{color:var(--muted)}
+
+.how{margin:0;padding:0;list-style:none}
+.how li{display:grid;grid-template-columns:2.2rem 1fr;gap:4px 12px;margin-bottom:18px}
+.how .n{width:2.2rem;height:2.2rem;border-radius:50%;background:var(--gold);color:var(--sky);display:flex;align-items:center;justify-content:center;font-weight:800}
+.how h3{margin:2px 0 4px}
+.how .ar{font-size:1.45rem;text-align:right;display:block;margin-top:6px}
+
+.two{display:grid;gap:12px;margin:12px 0}
+@media (min-width:560px){.two{grid-template-columns:1fr 1fr}}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.box h3{color:var(--gold)}
+.box p{margin:0;font-size:.97rem}
+
+.fact{border-inline-start:4px solid var(--gold);padding:4px 0;padding-inline-start:16px;margin:0 0 14px}
+.fact b{display:block}
+
+.mission{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:12px}
+.mission p{margin:0}
+.done{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:.92rem;color:var(--muted);cursor:pointer}
+.done input{width:1.15rem;height:1.15rem;accent-color:var(--gold)}
+
+.dua{text-align:center;margin-top:36px}
+.dua .ar{font-size:1.9rem;color:var(--gold);margin:0}
+.dua p{margin:0;color:var(--muted)}
+
+.sharebtn{all:unset;box-sizing:border-box;cursor:pointer;background:var(--gold);color:var(--sky);font-weight:800;border-radius:12px;padding:10px 18px}
+.sharebtn:focus-visible{outline:3px solid var(--text);outline-offset:2px}
+#copybox{display:none;width:100%;min-height:140px;margin-top:12px;font:inherit;font-size:.95rem;color:var(--text);background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px}
+.again{all:unset;box-sizing:border-box;cursor:pointer;margin-top:22px;color:var(--muted);text-decoration:underline;font-size:.9rem}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:420px){h1{font-size:1.75rem}.reveal .big{font-size:3.4rem}}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+<header>
+  <span class="tag">About 12 minutes, in small parts</span>
+  <h1>Case File: The Lost Traveller</h1>
+  <p class="lead">One mystery. Five clues. One Name of Allah hiding inside. And then: how to actually live it.</p>
+  <div class="story">
+    <p>It’s the middle of the night in the desert. No phone. No map. No road. Sand in every direction.</p>
+    <p>A traveller is completely lost. And yet, by morning, he is standing at the gate of the city.</p>
+    <p><b>How did he find his way?</b></p>
+  </div>
+  <ul class="route" aria-label="What’s in this case file">
+    <li>1. The clues</li><li>2. Your guess</li><li>3. Two kinds of guidance</li><li>4. How to ask</li><li>5. What would you do?</li><li>6. Check yourself</li><li>7. Missions</li>
+  </ul>
+</header>
+
+<!-- STEP 1 -->
+<h2><span class="stepno">Step 1</span>The clues</h2>
+
+<div class="turn">
+  <p class="turn-h">Your turn</p>
+  <p class="turn-q">Before opening any clue: how do you think the traveller found his way?</p>
+  <p class="turn-say">Say it out loud first. Writing is optional.</p>
+  <textarea dir="auto" data-id="t1a" placeholder="Write here, or just say it out loud…"></textarea>
+</div>
+
+<p class="lead">Now tap each clue. A star lights up for every one you open.</p>
+
+<section class="sky" aria-label="Star map that lights up as you open clues">
+  <svg viewBox="0 0 400 150" role="img" aria-label="Five stars that join together as clues are opened">
+    <line class="link" id="l1" x1="40" y1="105" x2="115" y2="50"/>
+    <line class="link" id="l2" x1="115" y1="50" x2="200" y2="95"/>
+    <line class="link" id="l3" x1="200" y1="95" x2="285" y2="40"/>
+    <line class="link" id="l4" x1="285" y1="40" x2="360" y2="85"/>
+    <circle class="star" id="s1" cx="40" cy="105" r="7"/>
+    <circle class="star" id="s2" cx="115" cy="50" r="7"/>
+    <circle class="star" id="s3" cx="200" cy="95" r="7"/>
+    <circle class="star" id="s4" cx="285" cy="40" r="7"/>
+    <circle class="star" id="s5" cx="360" cy="85" r="7"/>
+  </svg>
+  <p class="sky-label" id="skylabel">Open a clue to light up a star.</p>
+</section>
+
+<div class="clue" data-star="1">
+  <button class="open" aria-expanded="false"><span>Clue 1: Look up</span><span class="pill">tap</span></button>
+  <div class="body">
+    <p>Travellers have crossed deserts and oceans for thousands of years using the night sky. The Qur’an points to exactly this:</p>
+    <div class="quote"><span class="ar">وَبِالنَّجْمِ هُمْ يَهْتَدُونَ</span><em>“…and by the stars they find their way.”</em></div>
+    <p class="src">Surah An-Nahl 16:16</p>
+    <p>Notice the word <b>yahtadoon</b>, “they find their way”. Hold on to it.</p>
+  </div>
+</div>
+
+<div class="clue" data-star="2">
+  <button class="open" aria-expanded="false"><span>Clue 2: Who taught the animals?</span><span class="pill">tap</span></button>
+  <div class="body">
+    <p>Nobody gives a sea turtle a map, yet she returns to the same beach where she hatched, using the Earth’s magnetic field. Dung beetles roll their ball in a straight line by looking at the Milky Way.</p>
+    <div class="quote"><span class="ar">رَبُّنَا الَّذِي أَعْطَىٰ كُلَّ شَيْءٍ خَلْقَهُ ثُمَّ هَدَىٰ</span><em>“Our Lord is the One who gave everything its form, then guided it.”</em></div>
+    <p class="src">Surah Ta-Ha 20:50</p>
+    <p>Notice the last word: <b>hadā</b>. Same letters as <b>yahtadoon</b>. Spot the pattern?</p>
+  </div>
+</div>
+
+<div class="clue" data-star="3">
+  <button class="open" aria-expanded="false"><span>Clue 3: You say it every day</span><span class="pill">tap</span></button>
+  <div class="body">
+    <p>In every rak‘ah of every prayer you recite Surah Al-Fatiha. With the five daily prayers, that means you ask for something at least <b>17 times a day</b>:</p>
+    <div class="quote"><span class="ar">اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ</span><em>“Guide us to the straight path.”</em></div>
+    <p>The first word, <b>ihdinā</b>, has the same three letters again: <b>h – d – y</b>.</p>
+  </div>
+</div>
+
+<div class="clue" data-star="4">
+  <button class="open" aria-expanded="false"><span>Clue 4: A message from Allah</span><span class="pill">tap</span></button>
+  <div class="body">
+    <p>The Prophet ﷺ told us what Allah says about Himself. Read it slowly:</p>
+    <div class="quote"><span class="ar">يَا عِبَادِي، كُلُّكُمْ ضَالٌّ إِلَّا مَنْ هَدَيْتُهُ، فَاسْتَهْدُونِي أَهْدِكُمْ</span><em>“O My servants, all of you are lost except the one I guide. So ask Me for guidance, and I will guide you.”</em></div>
+    <p class="src">Sahih Muslim 2577 (Hadith Qudsi)</p>
+    <p>Allah is <b>inviting</b> us to ask. And the same root again: <b>hadaytuhu</b>, <b>istahdoonī</b>, <b>ahdikum</b>.</p>
+  </div>
+</div>
+
+<div class="clue" data-star="5">
+  <button class="open" aria-expanded="false"><span>Clue 5: The secret code</span><span class="pill">tap</span></button>
+  <div class="body">
+    <p>You’ve now seen the same root again and again:</p>
+    <p><b>yahtadoon</b> (they find their way)<br><b>hadā</b> (He guided)<br><b>ihdinā</b> (guide us)<br><b>ahdikum</b> (I will guide you)</p>
+    <p>Someone is doing the guiding. Someone who knows the way when we don’t. Which of His Names fits that?</p>
+  </div>
+</div>
+
+<div class="turn">
+  <p class="turn-h">Your turn</p>
+  <p class="turn-q">Which clue surprised you the most, and why?</p>
+  <p class="turn-say">Say it out loud first. Writing is optional.</p>
+  <textarea dir="auto" data-id="t1b" placeholder="Write here, or just say it out loud…"></textarea>
+</div>
+
+<!-- STEP 2 -->
+<h2><span class="stepno">Step 2</span>Your guess, detective</h2>
+<p class="lead">Which Name of Allah is hiding in this case?</p>
+
+<div class="turn">
+  <p class="turn-h">Your turn</p>
+  <p class="turn-q">Which Name do you think it is, and which clue convinced you?</p>
+  <p class="turn-say">Say it out loud first. Writing is optional.</p>
+  <textarea dir="auto" data-id="t2" placeholder="Write here, or just say it out loud…"></textarea>
+</div>
+
+<div class="opts" id="opts">
+  <button class="opt" data-ans="razzaq"><span class="ar">الرَّزَّاقُ</span>Ar-Razzāq <small>The Provider</small></button>
+  <button class="opt" data-ans="hadi"><span class="ar">الهَادِي</span>Al-Hādī <small>The Guide</small></button>
+  <button class="opt" data-ans="sami"><span class="ar">السَّمِيعُ</span>As-Samī‘ <small>The All-Hearing</small></button>
+</div>
+<div class="feedback" id="feedback" role="status" aria-live="polite"></div>
+
+<section class="reveal" id="reveal" aria-live="polite">
+  <p class="big ar">الهَادِي</p>
+  <p class="tr">Al-Hādī</p>
+  <p class="mean">The Guide. The One who shows every creature its way.</p>
+</section>
+
+<div class="after" id="after">
+
+  <p style="margin-top:24px">The traveller didn’t find the city by luck. The stars were there, his mind could read them, and the One who made both is <b>Al-Hādī</b>. This Name is in the Qur’an itself:</p>
+  <div class="quote"><span class="ar">وَكَفَىٰ بِرَبِّكَ هَادِيًا وَنَصِيرًا</span><em>“Your Lord is enough as a Guide and a Helper.”</em></div>
+  <p class="src">Surah Al-Furqan 25:31</p>
+  <div class="quote"><span class="ar">وَإِنَّ اللَّهَ لَهَادِ الَّذِينَ آمَنُوا إِلَىٰ صِرَاطٍ مُسْتَقِيمٍ</span><em>“Surely Allah guides those who believe to a straight path.”</em></div>
+  <p class="src">Surah Al-Hajj 22:54</p>
+
+  <!-- STEP 3 -->
+  <h2><span class="stepno">Step 3</span>Two kinds of guidance</h2>
+  <p>Scholars such as Ibn Kathir and Ibn al-Qayyim explained that guidance comes in two kinds. Think of a GPS in a car:</p>
+  <div class="two">
+    <div class="box"><h3>1. Showing the way</h3><p>The GPS shows the route. In real life: the Qur’an, the Prophet ﷺ, a teacher, a parent. The Prophet ﷺ could do this: “you surely guide to a straight path” (Ash-Shura 42:52).</p></div>
+    <div class="box"><h3>2. Helping you walk it</h3><p>Knowing the route is not the same as driving it. Making your heart actually move toward the right thing is only in Allah’s hands: “you cannot guide whom you love, but Allah guides whom He wills” (Al-Qasas 28:56).</p></div>
+  </div>
+  <p>That’s why we ask for <b>both</b>: “O Allah, show me the way <i>and</i> help me take it.”</p>
+  <p>Many scholars, including Ibn Taymiyyah and Ibn al-Qayyim, also noted that we need this du‘ā’ even more than food and water. A person can survive a hungry day, but a person who loses the way loses much more. That’s why it sits in the one surah we repeat in every rak‘ah.</p>
+
+  <div class="turn">
+    <p class="turn-h">Your turn</p>
+    <p class="turn-q">Give your own everyday example of “showing the way” and of “helping you walk it”. (Think of school or home.)</p>
+    <p class="turn-say">Say it out loud first. Writing is optional.</p>
+    <textarea dir="auto" data-id="t3" placeholder="Write here, or just say it out loud…"></textarea>
+  </div>
+
+  <!-- STEP 4 -->
+  <h2><span class="stepno">Step 4</span>How to ask for guidance</h2>
+  <p class="lead">Four steps, in order. These are real steps you can use tomorrow.</p>
+
+  <ol class="how">
+    <li><span class="n">1</span><div><h3>Ask</h3><p>Allah literally said, “ask Me and I will guide you.” You don’t need fancy words. “Ya Allah, guide me” is enough, in any language.</p></div></li>
+    <li><span class="n">2</span><div><h3>Try your best</h3><p>Asking and effort go together.</p>
+      <span class="ar">وَالَّذِينَ جَاهَدُوا فِينَا لَنَهْدِيَنَّهُمْ سُبُلَنَا</span>
+      <p class="lead" style="margin:4px 0 0">“Those who strive for Us, We will surely guide them to Our ways.” (Al-‘Ankabut 29:69)</p></div></li>
+    <li><span class="n">3</span><div><h3>Look for the signs</h3><p>Like the traveller looking at the stars: ask a trusted person, read, think, notice what’s around you. Guidance often arrives through people and things you’d never expect.</p></div></li>
+    <li><span class="n">4</span><div><h3>Walk, and stay on target</h3><p>The Prophet ﷺ taught Sayyidunā ‘Alī, who was a young man then, a dua with a beautiful picture inside it:</p>
+      <span class="ar">اللَّهُمَّ اهْدِنِي وَسَدِّدْنِي</span>
+      <p class="lead" style="margin:4px 0 6px">“O Allah, guide me and keep me on target.”</p>
+      <p style="margin:0">He ﷺ told him: when you say “guidance”, remember <b>guiding someone along a road</b>; and when you say “on target”, remember the <b>straightness of an arrow</b>. (Sahih Muslim 2725)</p></div></li>
+  </ol>
+
+  <p>And here is something special for young people. Allah describes the young men of the cave, the ones who stood firm on what they believed:</p>
+  <div class="quote"><span class="ar">إِنَّهُمْ فِتْيَةٌ آمَنُوا بِرَبِّهِمْ وَزِدْنَاهُمْ هُدًى</span><em>“They were young men who believed in their Lord, and We increased them in guidance.”</em></div>
+  <p class="src">Surah Al-Kahf 18:13</p>
+  <p>Notice: Allah <b>increased</b> their guidance. Guidance can grow. You don’t need to have it all figured out today.</p>
+
+  <div class="turn">
+    <p class="turn-h">Your turn</p>
+    <p class="turn-q">Think of something you could use guidance with right now, big or small. Which of the 4 steps will you try first? You can keep the details to yourself and just write the step.</p>
+    <p class="turn-say">Say it out loud first. Writing is optional.</p>
+    <textarea dir="auto" data-id="t4" placeholder="Write here, or just say it out loud…"></textarea>
+  </div>
+
+  <!-- STEP 5 -->
+  <h2><span class="stepno">Step 5</span>What would you do?</h2>
+  <p class="lead">Four everyday situations. Think first, then tap to see an idea.</p>
+
+  <div class="clue">
+    <button class="open" aria-expanded="false"><span>The exam: your mind goes blank</span><span class="pill">tap</span></button>
+    <div class="body">
+      <p class="scenario-q">You studied hard, but you see a question and suddenly can’t remember anything.</p>
+      <div class="answer"><p>Take one slow breath and say silently, “Ya Allah, guide me.” That’s step 1. Then do step 2: skip to the next question and come back, because your brain often finds the answer when you stop forcing it.</p><p style="margin:0">Notice the order: <b>ask, then try</b>. Not one without the other. And the studying you did before was already part of striving.</p></div>
+    </div>
+  </div>
+
+  <div class="clue">
+    <button class="open" aria-expanded="false"><span>The friend: “Religion is just rules”</span><span class="pill">tap</span></button>
+    <div class="body">
+      <p class="scenario-q">A friend says it, and you’re not sure how to answer. You don’t want an argument.</p>
+      <div class="answer"><p>You don’t have to argue, and you don’t have to know everything. Take a breath, say silently “O Allah, guide me and keep me on target”, then share <b>one</b> reason you actually know, in one calm sentence. For example: “Most things we do have a reason behind them. I’m happy to share one if you’re curious.”</p><p style="margin:0">And if you don’t know the reason yet, “I’ll find out and tell you” is a perfectly good answer. That is step 3: looking for the signs.</p></div>
+    </div>
+  </div>
+
+  <div class="clue">
+    <button class="open" aria-expanded="false"><span>Your little brother is stuck</span><span class="pill">tap</span></button>
+    <div class="body">
+      <p class="scenario-q">He can’t finish his homework (or can’t figure out a build in Minecraft) and he’s getting frustrated.</p>
+      <div class="answer">
+        <p>Don’t just do it for him. <b>Guide</b> him: ask “what have you tried?”, give a hint, let him take the last step himself. You just acted like a tiny version of the first kind of guidance: showing the way.</p>
+        <p>The Prophet ﷺ said:</p>
+        <div class="quote"><span class="ar">مَنْ دَلَّ عَلَى خَيْرٍ فَلَهُ مِثْلُ أَجْرِ فَاعِلِهِ</span><em>“Whoever guides someone to something good gets a reward like the one who does it.”</em></div>
+        <p class="src" style="margin:0">Sahih Muslim 1893</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="clue">
+    <button class="open" aria-expanded="false"><span>A big question with no answer yet</span><span class="pill">tap</span></button>
+    <div class="body">
+      <p class="scenario-q">You keep wondering about something big, and nobody has given you an answer that satisfies you.</p>
+      <div class="answer">
+        <p>That’s normal, and it’s not a bad sign. When the Prophet ﷺ prayed at night, he used to ask Allah:</p>
+        <div class="quote"><span class="ar">اهْدِنِي لِمَا اخْتُلِفَ فِيهِ مِنَ الْحَقِّ بِإِذْنِكَ</span><em>“Guide me to the truth in the things people disagree about, by Your permission.”</em></div>
+        <p class="src">Sahih Muslim 770</p>
+        <p style="margin:0">So the best person in history asked for guidance on hard questions. Write your question down, ask it calmly to someone you trust (your parents, your Qur’an teacher), and keep asking Allah while you search.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="turn">
+    <p class="turn-h">Your turn</p>
+    <p class="turn-q">Your own situation: think of a time you weren’t sure what to do. What would you do now, using the 4 steps?</p>
+    <p class="turn-say">Say it out loud first. Writing is optional.</p>
+    <textarea dir="auto" data-id="t5" placeholder="Write here, or just say it out loud…"></textarea>
+  </div>
+
+  <!-- STEP 6 -->
+  <h2><span class="stepno">Step 6</span>Check yourself</h2>
+  <p class="lead">Three quick questions. No pressure.</p>
+  <div id="quiz"></div>
+
+  <div class="turn">
+    <p class="turn-h">Your turn</p>
+    <p class="turn-q">Write one question you’d like to ask your teacher about guidance.</p>
+    <p class="turn-say">Say it out loud first. Writing is optional.</p>
+    <textarea dir="auto" data-id="t6" placeholder="Write here, or just say it out loud…"></textarea>
+  </div>
+
+  <!-- STEP 7 -->
+  <h2><span class="stepno">Step 7</span>Your missions</h2>
+
+  <div class="mission"><h3>Mission 1: Treasure hunt, with a twist</h3><p>Hide a small “treasure” at home. Give your brothers <b>no map</b>. You are only allowed to guide them with “warmer” and “colder”. When they find it, tell them: <i>that’s a tiny version of what Al-Hādī does for us.</i></p>
+    <label class="done"><input type="checkbox" data-id="m1" data-label="Mission 1: Treasure hunt, with a twist"> Done</label></div>
+  <div class="mission"><h3>Mission 2: Catch the moment</h3><p>In your next prayer, when you reach <b>ihdinā</b>, pause for one second inside your heart. No need to feel anything special. Just notice what’s going on in your mind, then tell someone later if you want to.</p>
+    <label class="done"><input type="checkbox" data-id="m2" data-label="Mission 2: Catch the moment"> Done</label></div>
+  <div class="mission"><h3>Mission 3: One question</h3><p>Ask someone at home: <i>“Was there a time you felt lost and then things became clear?”</i> Listen to the story, and see which of the four steps they used.</p>
+    <label class="done"><input type="checkbox" data-id="m3" data-label="Mission 3: One question"> Done</label></div>
+  <div class="mission"><h3>Mission 4: Be a small guide</h3><p>This week, help one person find something good: show your brother how to do something, or remind a friend of something helpful. Remember the hadith: the one who guides to good is like the one who does it.</p>
+    <label class="done"><input type="checkbox" data-id="m4" data-label="Mission 4: Be a small guide"> Done</label></div>
+
+  <div class="turn">
+    <p class="turn-h">Your turn</p>
+    <p class="turn-q">Which mission will you do first, and when?</p>
+    <p class="turn-say">Say it out loud first. Writing is optional.</p>
+    <textarea dir="auto" data-id="t7" placeholder="Write here, or just say it out loud…"></textarea>
+  </div>
+
+  <h2 style="margin-top:44px">A fact you probably didn’t know</h2>
+  <div class="fact"><b>The Arctic tern</b>This small bird flies from the Arctic to Antarctica and back every year, a journey of tens of thousands of kilometres. No one teaches it the route. “He gave everything its form, <i>then guided it</i>.”</div>
+
+  <div class="dua">
+    <p class="ar">اللَّهُمَّ اهْدِنِي وَسَدِّدْنِي</p>
+    <p>“O Allah, guide me and keep me on target.”</p>
+  </div>
+
+  <h2>Send your answers to your teacher (optional)</h2>
+  <p>Nothing leaves this page unless you copy it yourself. Share only what you want to.</p>
+  <button class="sharebtn" id="sharebtn">Copy my answers</button>
+  <p id="sharestatus" role="status" aria-live="polite" style="margin:10px 0 0;color:var(--muted)"></p>
+  <textarea id="copybox" dir="auto" readonly></textarea>
+
+  <div style="text-align:center"><button class="again" id="again">Solve it again</button></div>
+</div>
+
+</main>
+
+<script>
+(function(){
+  var T = {"lang": "en", "labels": ["Open a clue to light up a star.", "One star is lit. Keep going.", "Two stars. A line is forming.", "Three stars. Almost a pattern.", "Four stars. One more.", "All five stars are lit. Time to guess."], "right": "Yes! Case solved.", "msgs": {"razzaq": "Good thinking: Ar-Razzāq is a beautiful Name, but it’s about provision. Look again at the repeated letters h – d – y.", "sami": "As-Samī‘ is real and amazing too, but the clues weren’t about hearing. What were the stars doing for the traveller?"}, "quiz": [{"q": "A GPS shows you the route, but you still have to drive. Which kind of guidance is the GPS like?", "a": ["Showing the way", "Helping you walk it"], "c": 0, "ok": "Right. Showing the way is the GPS. Making your heart move toward it is Allah’s help, so we ask for both.", "no": "Close, but the GPS only shows the route. Helping you actually drive it is the second kind."}, {"q": "Which group did Allah say He “increased in guidance”?", "a": ["The young men of the cave", "The travellers in the desert", "The people of Madinah"], "c": 0, "ok": "Yes: “They were young men who believed in their Lord, and We increased them in guidance.” (18:13)", "no": "Not this one. Think of the youths in Surah Al-Kahf."}, {"q": "You help your brother finish a hard task. What did the Prophet ﷺ say about guiding someone to good?", "a": ["You get a reward like the one who does it", "Nothing, it’s just being nice", "You must do it for him"], "c": 0, "ok": "Exactly. Whoever guides to good gets a reward like the one who does it. (Sahih Muslim)", "no": "Look again at the hadith from Step 5. What did he ﷺ promise the one who guides?"}], "copyHeader": "Case File answers: The Lost Traveller (Al-Hādī)", "missionsDone": "Missions done:", "none": "You haven’t written any answers yet.", "copied": "Copied. Paste it into a message to your teacher.", "copyFail": "Couldn’t copy automatically. Copy the text from the box below.", "tap": "tap", "open": "open"};
+  var KEY = 'alhadi-' + T.lang;
+  var opened = {};
+
+  function loadState(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){return {}}}
+  function saveState(o){try{localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
+  var state = loadState();
+
+  function count(){var n=0;for(var k in opened){if(opened[k])n++}return n}
+  function light(n){
+    var s=document.getElementById('s'+n); if(s){s.classList.add('on')}
+    if(n>1){var l=document.getElementById('l'+(n-1)); if(l){l.classList.add('on')}}
+    document.getElementById('skylabel').textContent=T.labels[count()];
+  }
+
+  var clues=document.querySelectorAll('.clue');
+  Array.prototype.forEach.call(clues,function(c){
+    var btn=c.querySelector('button.open');
+    var st=c.getAttribute('data-star');
+    btn.addEventListener('click',function(){
+      var isOpen=c.classList.toggle('shown');
+      btn.setAttribute('aria-expanded',isOpen?'true':'false');
+      btn.querySelector('.pill').textContent=isOpen?T.open:T.tap;
+      if(isOpen && st){var n=parseInt(st,10);opened[n]=true;light(n)}
+    });
+  });
+
+  /* guess */
+  var fb=document.getElementById('feedback');
+  var opts=document.querySelectorAll('#opts .opt');
+  Array.prototype.forEach.call(opts,function(o){
+    o.addEventListener('click',function(){
+      var a=o.getAttribute('data-ans');
+      if(a==='hadi'){
+        o.classList.add('right');
+        fb.style.color='var(--ok)';
+        fb.textContent=T.right;
+        document.getElementById('reveal').classList.add('shown');
+        document.getElementById('after').classList.add('shown');
+        document.getElementById('reveal').scrollIntoView({behavior:'smooth',block:'center'});
+      }else{
+        o.classList.add('wrong');
+        fb.style.color='var(--no)';
+        fb.textContent=T.msgs[a];
+      }
+    });
+  });
+
+  /* quiz */
+  var qbox=document.getElementById('quiz');
+  function buildQuiz(){
+    qbox.innerHTML='';
+    T.quiz.forEach(function(item,i){
+      var wrap=document.createElement('div');
+      wrap.className='mission';
+      var h=document.createElement('p');
+      h.style.fontWeight='700';
+      h.textContent=(i+1)+'. '+item.q;
+      wrap.appendChild(h);
+      var list=document.createElement('div');
+      list.className='opts';
+      var msg=document.createElement('p');
+      msg.style.margin='10px 0 0';
+      msg.setAttribute('role','status');
+      item.a.forEach(function(txt,j){
+        var b=document.createElement('button');
+        b.className='opt';
+        b.textContent=txt;
+        b.addEventListener('click',function(){
+          if(j===item.c){b.classList.add('right');msg.style.color='var(--ok)';msg.textContent=item.ok}
+          else{b.classList.add('wrong');msg.style.color='var(--no)';msg.textContent=item.no}
+        });
+        list.appendChild(b);
+      });
+      wrap.appendChild(list);
+      wrap.appendChild(msg);
+      qbox.appendChild(wrap);
+    });
+  }
+  buildQuiz();
+
+  /* learner answers: restore + autosave */
+  var fields=document.querySelectorAll('textarea[data-id], input[type=checkbox][data-id]');
+  Array.prototype.forEach.call(fields,function(f){
+    var id=f.getAttribute('data-id');
+    if(f.type==='checkbox'){
+      if(state[id]===true){f.checked=true}
+      f.addEventListener('change',function(){state[id]=f.checked;saveState(state)});
+    }else{
+      if(typeof state[id]==='string'){f.value=state[id]}
+      f.addEventListener('input',function(){state[id]=f.value;saveState(state)});
+    }
+  });
+
+  /* copy answers */
+  var box=document.getElementById('copybox');
+  var status=document.getElementById('sharestatus');
+  document.getElementById('sharebtn').addEventListener('click',function(){
+    var lines=[T.copyHeader,''];
+    var any=false;
+    Array.prototype.forEach.call(document.querySelectorAll('.turn'),function(t){
+      var ta=t.querySelector('textarea');
+      if(ta && ta.value.trim()){
+        any=true;
+        lines.push(t.querySelector('.turn-q').textContent);
+        lines.push(ta.value.trim());
+        lines.push('');
+      }
+    });
+    var done=[];
+    Array.prototype.forEach.call(document.querySelectorAll('input[type=checkbox][data-id]'),function(c){
+      if(c.checked){done.push(c.getAttribute('data-label'))}
+    });
+    if(done.length){any=true;lines.push(T.missionsDone);done.forEach(function(d){lines.push('- '+d)})}
+    if(!any){status.textContent=T.none;return}
+    var text=lines.join('\n');
+    box.value=text;
+    box.style.display='block';
+    var ok=function(){status.textContent=T.copied};
+    var fail=function(){
+      try{box.focus();box.select();if(document.execCommand('copy')){ok();return}}catch(e){}
+      status.textContent=T.copyFail;
+    };
+    try{
+      if(navigator.clipboard && navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(ok,fail)}
+      else{fail()}
+    }catch(e){fail()}
+  });
+
+  /* reset */
+  document.getElementById('again').addEventListener('click',function(){
+    opened={};
+    for(var i=1;i<=5;i++){var s=document.getElementById('s'+i);if(s)s.classList.remove('on')}
+    for(var j=1;j<=4;j++){var l=document.getElementById('l'+j);if(l)l.classList.remove('on')}
+    document.getElementById('skylabel').textContent=T.labels[0];
+    Array.prototype.forEach.call(clues,function(c){
+      c.classList.remove('shown');
+      var b=c.querySelector('button.open');
+      b.setAttribute('aria-expanded','false');
+      b.querySelector('.pill').textContent=T.tap;
+    });
+    Array.prototype.forEach.call(opts,function(o){o.classList.remove('right','wrong')});
+    fb.textContent='';
+    document.getElementById('reveal').classList.remove('shown');
+    document.getElementById('after').classList.remove('shown');
+    Array.prototype.forEach.call(fields,function(f){if(f.type==='checkbox'){f.checked=false}else{f.value=''}});
+    state={};saveState(state);
+    box.value='';box.style.display='none';status.textContent='';
+    buildQuiz();
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+})();
+</script>
+</body>
+</html>
